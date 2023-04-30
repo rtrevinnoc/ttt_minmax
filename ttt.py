@@ -50,9 +50,9 @@ def evaluate(b) :
     return 0
 
 # Profundidad maxima de minimax
-MAX_DEPTH = 9
+MAX_DEPTH = 15
   
-def minimax(board, depth, isMax) : 
+def minimax(board, depth, isMax, alpha, beta) : 
     # print("###=>", depth)
     # Verificar el estado del tablero
     score = evaluate(board)
@@ -78,14 +78,20 @@ def minimax(board, depth, isMax) :
                   
                     # Marcarla con el jugador a maximizar
                     board[i][j] = player 
-  
+
                     # Volver a ejecutar Minimax desde este punto de forma recursiva 
-                    best = max( best, minimax(board,
-                                              depth + 1,
-                                              not isMax) )
+                    val = minimax(board, depth + 1, not isMax, alpha, beta)
   
                     # Regresar el tablero a su valor anterior
                     board[i][j] = '_'
+
+                    # Mejor movimiento
+                    best = max(best, val)
+                    # Nuevo alpha
+                    alpha = max(alpha, val)
+
+                    if beta <= alpha:
+                        break
         return best
   
     # Para el jugador a minimizar
@@ -103,10 +109,18 @@ def minimax(board, depth, isMax) :
                     board[i][j] = opponent 
   
                     # Volver a ejecutar Minimax de forma recursiva a partir de este movimiento
-                    best = min(best, minimax(board, depth + 1, not isMax))
+                    val = minimax(board, depth + 1, not isMax, alpha, beta)
   
                     # Deshacer el movimiento
                     board[i][j] = '_'
+
+                    # Mejor movimiento al minimizar
+                    best = min(best, val)
+                    # Nuevo beta
+                    beta = min(beta, val)
+
+                    if beta <= alpha:
+                        break
         return best
   
 # Calcular el mejor movimiento para el tablero actual
@@ -125,7 +139,7 @@ def findBestMove(board) :
                 board[i][j] = player
   
                 # Calcular el valor mediante el algoritmo de Minimax para ese movimiento
-                moveVal = minimax(board, 0, False) 
+                moveVal = minimax(board, 0, False, -1000, 1000) 
   
                 # Deshacer el movimiento
                 board[i][j] = '_' 
